@@ -64,8 +64,7 @@ String callBackResponse(String cmd,String stringcheck,String posresp,String negr
   Resp = readstringin();
   Trimvalue = Resp.indexOf('K');
   TrimResp = Resp.substring(Trimvalue-1,Trimvalue+1);
-  Serial.println(TrimResp);
-  if (TrimResponse == "OK")
+  if (TrimResp == stringcheck)
   {
     Serial.println(posresp);
     break;
@@ -81,21 +80,22 @@ String callBackResponse(String cmd,String stringcheck,String posresp,String negr
 
 String Network::getModemInfo ()
 {
-    
     callBackResponse("AT","OK","MODULE ON","MODULE OFF");
     Serial2.println("ATI");
-    delay(100);
+    delay(500);
     String RespATI  = readstringin();
-    String TrimATIResponse = RespATI.substring(20,220);
+    Serial2.println(RespATI);
+    Trimvalue = RespATI.indexOf('M');
+    TrimResp = RespATI.substring(Trimvalue,Trimvalue+151);
     Serial2.println("AT+CCID");
-    delay(50);
+    delay(200);
     String RespCCID  = readstringin();
     String TrimCCIDResponse = RespCCID.substring(18,39);
     Serial2.println("AT+GSN");
-    delay(50);
+    delay(200);
     String RespIMEI  = readstringin();
     String TrimIMEIResponse = RespIMEI.substring(10,29);
-    String Response = "Device Info:\r\n" + TrimATIResponse;
+    String Response = "Device Info:\r\n" + TrimResp;
     return Response;
 }
 
@@ -122,6 +122,7 @@ String Network::getRadioStatus ()
   Resp = readstringin();
   Trimvalue = Resp.indexOf('+');
   TrimResp = Resp.substring(Trimvalue,Trimvalue+8);
+  
   return TrimResp;
 }
 
@@ -179,23 +180,27 @@ void Network::setPDN(int ipType, String apn) // IP Type: 1 - IPV4, 2 - IPV6, 3 -
   String IPV6= "2";
   String IPV4V6= "3";
   String NOIP= "5";
-  Serial.println("Setting APN");
+  Serial.print("Setting APN to ");
   switch (ipType){
     case 1:
     AtCommand  = "AT+CFGDFTPDN=" + IPV4 + comma + quotes + apn + quotes;
     Serial2.println(AtCommand);
+    Serial.println(apn);
     break;
     case 2:
     AtCommand  = "AT+CFGDFTPDN=" + IPV6 + comma + quotes + apn + quotes;
     Serial2.println(AtCommand);
+    Serial.println(apn);
     break;
     case 3:
     AtCommand  = "AT+CFGDFTPDN=" + IPV4V6 + comma + quotes + apn + quotes;
     Serial2.println(AtCommand);
+    Serial.println(apn);
     break;
     case 4:
     AtCommand  = "AT+CFGDFTPDN=" + NOIP + comma + quotes + apn + quotes;
     Serial2.println(AtCommand);
+    Serial.println(apn);
     break;
     default:
     break;

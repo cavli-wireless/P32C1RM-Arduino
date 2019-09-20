@@ -12,11 +12,14 @@ void setup() {
   Serial2.begin(57600, SERIAL_8N1, RXD2, TXD2);
   Serial.println("Testing.....\n");
   Network.radioEnable(true); 
-  Network.getModemInfo();
+  String modeminfo = Network.getModemInfo();
+  Serial.println(modeminfo);
   String Status = Network.getRadioStatus();
   Serial.println(Status);
-  Network.getNetworkStatus();
-  Network.getSignalStrength();
+  String net =Network.getNetworkStatus();
+  Serial.println(net);
+  String strength = Network.getSignalStrength();
+  Serial.println(strength);
   Network.networkAttach(true);
   Network.setPDN(1,"hubblethings.io");
   
