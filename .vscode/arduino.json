@@ -1,0 +1,5 @@
+{
+    "programmer": "ArduinoISP.org",
+    "board": "espressif:esp32:esp32",
+    "configuration": "PartitionScheme=minimal,FlashMode=dio,FlashFreq=80,FlashSize=2M,UploadSpeed=921600,DebugLevel=none"
+}
