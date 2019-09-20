@@ -1,0 +1,116 @@
+#---------------------------------------------------------
+# Syntax Coloring Map For P32C1RS
+#---------------------------------------------------------
+
+
+# Datatypes (such as objects)
+Network 			KEYWORD1
+
+
+#Methods / Functions
+ 
+begin				KEYWORD2
+readstringin			KEYWORD2
+CheckTrimResponse		KEYWORD2
+serialBegin			KEYWORD2
+radioEnable			KEYWORD2
+queryTime			KEYWORD2
+queryIMEI			KEYWORD2
+queryModuleModel		KEYWORD2
+queryManufacture		KEYWORD2
+saveUserSettings		KEYWORD2
+restoreUserSettings		KEYWORD2
+restoreFactorySettings		KEYWORD2
+setResponse 			KEYWORD2
+setEchoMode 			KEYWORD2
+getNetConnection 		KEYWORD2
+checknetworkRegistraion 	KEYWORD2
+configurepdp 			KEYWORD2
+checkdataattachement 		KEYWORD2
+ping 				KEYWORD2
+queryIMSI 			KEYWORD2
+queryICCID 			KEYWORD2
+querySIMPIN 			KEYWORD2
+setSIMPIN 			KEYWORD2
+changeSIMPIN 			KEYWORD2
+setBaudRate 			KEYWORD2
+setFrameFormat 			KEYWORD2
+setFlowControl 			KEYWORD2
+setSerialLowPowerMode 		KEYWORD2
+configureDNS 			KEYWORD2
+domainNameRes 			KEYWORD2
+MQTTCreateConn			KEYWORD2
+MQTTPublish 			KEYWORD2
+MQTTSubscribe 			KEYWORD2
+MQTTReception 			KEYWORD2
+MQTTDisconnect			KEYWORD2
+MQTTUnsubscribe 		KEYWORD2
+checkSMSSender 			KEYWORD2
+SMSRead 			KEYWORD2
+SMSSend 			KEYWORD2
+enableEDRX 			KEYWORD2
+disableEDRX 			KEYWORD2 
+enablePSM 			KEYWORD2
+disablePSM 			KEYWORD2
+queryOperator 			KEYWORD2
+querySignal 			KEYWORD2
+querySignalConn 		KEYWORD2
+restartModule 			KEYWORD2
+setModuleStatus 		KEYWORD2
+shutdownModule 			KEYWORD2
+setModuleSleepLevel 		KEYWORD2
+setFreqBand 			KEYWORD2
+hardResetModem               	KEYWORD2
+intPSM                  	KEYWORD2
+createCOAPConn 			KEYWORD2
+sendCOAPData 			KEYWORD2
+COAPReception 			KEYWORD2
+endCOAPConn 			KEYWORD2
+setCOAPReport 			KEYWORD2
+createUDPConn 			KEYWORD2
+sendUDPData 			KEYWORD2
+recieveUDPData 			KEYWORD2
+sendUDPError 			KEYWORD2
+endUDPConn 			KEYWORD2
+setTCPConn 			KEYWORD2
+queryIPConn 			KEYWORD2
+initIPConn 			KEYWORD2
+sendSingleModeIPdata 		KEYWORD2
+sendMultiModeIPdata 		KEYWORD2
+sendSingleModeIPDataStat 	KEYWORD2
+sendMultiModeIPDataStat 	KEYWORD2
+recieveSingleModeIPData 	KEYWORD2
+recieveIPMultiModeData 		KEYWORD2
+endIPConn 			KEYWORD2
+endNetConn 			KEYWORD2
+setLocalIPPort 			KEYWORD2
+setSendPrompt 			KEYWORD2
+setRecieverHeader 		KEYWORD2
+setRecieverDisplay 		KEYWORD2
+setDispalyIP 			KEYWORD2
+queryTransParam 		KEYWORD2
+setTCPHeartBeatParam 		KEYWORD2
+initHTTPService 		KEYWORD2
+terminateHTTPService 		KEYWORD2
+setHTTPParam 			KEYWORD2
+postdataHTTP 			KEYWORD2
+inputHTTPData 			KEYWORD2
+setHTTPSCertifacte 		KEYWORD2
+setHTTPMethod 			KEYWORD2
+readHTTPServerResp 		KEYWORD2
+readHTTPStatus 			KEYWORD2
+getHTTP 			KEYWORD2
+downloadFilesHTTP 		KEYWORD2
+initHTTP2Service 		KEYWORD2
+terminateHTTP2Service 		KEYWORD2
+setHTTPAuthority 		KEYWORD2
+putdataHTTP 			KEYWORD2
+readHTTPheaderinfo 		KEYWORD2
+queryHTTPMethods 		KEYWORD2
+getHTTPServerPath 		KEYWORD2
+deleteHTTPRes 			KEYWORD2
+
+
+# Constants
+
+
