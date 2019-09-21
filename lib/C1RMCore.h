@@ -26,7 +26,7 @@ class Network {
     // void modemReset(); // Modem will go for Hard Reset. The same function can be used to Switch ON Modem after a Shutdown.
 
 
-        // Get Info methods
+    // Get Info methods
     String getModemInfo(); // Displays details Modem Information.
     // String getSerialNumber(); // Displays Serial Number.
     // String getIMEI(); // Displays IMEI Number.
@@ -44,6 +44,31 @@ class Network {
     // String getIPAddr(); // Get the current modem IP address.
     // String getPingStatus(String hostname, String pingCount); // Ping to a hostname and get the ping quality report.
     // String getSMSCenterNumber(); // Displays the SMS Center Number from the SIM Card.
+
+    // SMS methods
+    // String readSMS(String index, String storageType); // Prints the SMS received and stored in a specific strorage (SIM or Modem Flash) with the index number.
+    // bool sendSMS(String destNumber, String message); // Sends SMS to the given Destination Number.
+
+    // MQTT methods
+    // bool createMQTT(String mqttserver, String port, String clientID, String keepalive, String cleansession, String username, String password); // Create a new MQTT connection to the specified hostname and credintials.
+    // bool publishMQTT(String topic, String message, String qos, String duplicate, String retain); // Publish MQTT Message to a specified topic unding the previously created MQTT connection.
+    // void subscribeMQTT(String topic, String qos, String enable); // Subcribe to a MQTT Topic. If enable is false, the topic will be unsubscribed from the connection.
+    // void disconnectMQTT(); // Disconnect from the created MQTT server.
+
+    // CoAP methods
+    // bool createCoAP(String coapserver); // Create new CoAP connection.
+    // bool sendCoAPData(String data, String dataLength); // Send data to CoAP server.
+    // void receiveCoAPData(String enable); // If enable is true, inidicates incoming message notifications and the received message.
+    // void closeCoAP(); // Close CoAP server connection.
+
+
+    // HTTP/HTTPS methods
+
+
+    // TCP IP methods
+
+
+    // UDP methods
   
   private:
 };

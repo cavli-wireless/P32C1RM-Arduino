@@ -1,4 +1,3 @@
-/*===================================================================== CAVLI WIRELESS P32 Firmware v1 ========================================================================*/
 #include "C1RMCore.h"
 
 String comma = ",";
@@ -10,25 +9,17 @@ String AtCommand;
 int Trimvalue;
 int i;
 
-String readstringin();
-String CheckTrimResponse(String TrimResponse,String stringcheck,String posresp,String negresp);
-String callBackResponse(String cmd,String stringcheck,String posresp,String negresp);
-
-
 Network::Network(bool displayMsg){
   //Anything yoy need when initiating object goes here
 }
 
-
-
-String readstringin(){
+String readstringin() {
   int flag =0;
   int i=0;
   String inputString;
-  for(;;){
-    if (Serial2.available())
-    {
-      for(i=0;i<1;i++){
+  for(;;) {
+    if (Serial2.available()) {
+      for(i=0;i<1;i++) {
       inputString=Serial2.readString();
       }
       flag = 1;
@@ -37,122 +28,88 @@ String readstringin(){
    return inputString;
    inputString="\0";
    if(flag==1)
-   break;
-  }
-}
-
-String CheckTrimResponse(String TrimResponse,String stringcheck,String posresp,String negresp)
-{
-  if (TrimResponse == stringcheck)
-  {
-    Serial.println(posresp);
-  }
-  else 
-  {
-    Serial.println(negresp);
-  }
-  return TrimResponse;
-}
-
-String callBackResponse(String cmd,String stringcheck,String posresp,String negresp)
-{
-  String TrimResponse;
-  while(1)
-  { 
-  Serial2.println(cmd);
-  delay(100);
-  Resp = readstringin();
-  Trimvalue = Resp.indexOf('K');
-  TrimResp = Resp.substring(Trimvalue-1,Trimvalue+1);
-  if (TrimResp == stringcheck)
-  {
-    Serial.println(posresp);
     break;
   }
-  else 
-  {
+}
+
+String CheckTrimResponse(String TrimResponse,String stringcheck,String posresp,String negresp) {
+  if (TrimResponse == stringcheck) {
+    Serial.println(posresp);
+  } else {
     Serial.println(negresp);
-  }
-  delay(500);
   }
   return TrimResponse;
 }
 
-String Network::getModemInfo ()
-{
-    callBackResponse("AT","OK","MODULE ON","MODULE OFF");
-    Serial2.println("ATI");
-    delay(500);
-    String RespATI  = readstringin();
-    Serial2.println(RespATI);
-    Trimvalue = RespATI.indexOf('M');
-    TrimResp = RespATI.substring(Trimvalue,Trimvalue+151);
-    Serial2.println("AT+CCID");
-    delay(200);
-    String RespCCID  = readstringin();
-    String TrimCCIDResponse = RespCCID.substring(18,39);
-    Serial2.println("AT+GSN");
-    delay(200);
-    String RespIMEI  = readstringin();
-    String TrimIMEIResponse = RespIMEI.substring(10,29);
-    String Response = "Device Info:\r\n" + TrimResp;
-    return Response;
-}
-
-
-void Network::radioEnable (bool enable)
-{
-  if (enable)
-  {
-    Serial2.println("AT+CFUN=1");
+String callBackResponse(String cmd,String stringcheck,String posresp,String negresp) {
+  String TrimResponse;
+  while(1) { 
+    Serial2.println(cmd);
+    delay(100);
+    Resp = readstringin();
+    Trimvalue = Resp.indexOf('K');
+    TrimResp = Resp.substring(Trimvalue-1,Trimvalue+1);
+    if (TrimResp == stringcheck) {
+      Serial.println(posresp);
+      break;
+    } else {
+      Serial.println(negresp);
+    }
     delay(500);
   }
-  else if(!enable)
-  {
+  return TrimResponse;
+}
+
+void Network::radioEnable (bool enable) { // True - Enable Cellular Radio, False - Disable Cellular Radio.
+  if (enable) {
+    Serial2.println("AT+CFUN=1");
+    delay(500);
+  } else {
     Serial2.println("AT+CFUN=0");
     delay(500);
   }
 }
 
+void Network::networkAttach (bool enable) { // True - Attach to Cellular Network, False - Dettach from Cellular Service.
+  if (enable) {
+    Serial2.println("AT+CREG=1");
+    delay(500);
+  } else {
+    Serial2.println("AT+CREG=0");
+    delay(500);
+  }
+}
 
-String Network::getRadioStatus ()
-{
+String Network::getRadioStatus () { // Inform the current Radio mode status.
   Serial2.println("AT+CFUN?");
   delay(500);
   Resp = readstringin();
   Trimvalue = Resp.indexOf('+');
   TrimResp = Resp.substring(Trimvalue,Trimvalue+8);
-  
   return TrimResp;
 }
 
-
-void Network::networkAttach (bool enable) // True - Attach to Cellular Network, False - Dettach from Cellular Service.
-{
-  String SignalResp = getSignalStrength();
-  String TrimSignalResp = SignalResp.substring(0,2);
-  int strength = TrimSignalResp.toInt();
-  if (strength <= 3)
-  Serial.println("Signal Strength is too low!");
-  while(1)
-  {
-    Resp = getNetworkStatus();
-    if(Resp == "1,1")
-    {
-      Serial.println("Network Attachment Successfull!");
-      break;
-    }
-    else 
-    {
-      Serial.println("Network Attachment Unsuccessfull!");
-    }
-    delay(500);
-  }
+String Network::getModemInfo () { // Displays details Modem Information.
+  callBackResponse("AT","OK","MODULE ON","MODULE OFF");
+  Serial2.println("ATI");
+  delay(500);
+  String RespATI  = readstringin();
+  Serial2.println(RespATI);
+  Trimvalue = RespATI.indexOf('M');
+  TrimResp = RespATI.substring(Trimvalue,Trimvalue+151);
+  Serial2.println("AT+CCID");
+  delay(200);
+  String RespCCID  = readstringin();
+  String TrimCCIDResponse = RespCCID.substring(18,39);
+  Serial2.println("AT+GSN");
+  delay(200);
+  String RespIMEI  = readstringin();
+  String TrimIMEIResponse = RespIMEI.substring(10,29);
+  String Response = "Device Info:\r\n" + TrimResp;
+  return Response;
 }
 
-
-String Network::getSignalStrength() // Displays the Radio Signal Strength.
-{
+String Network::getSignalStrength() { // Displays the Radio Signal Strength.
   Serial2.println("AT+CSQ");
   delay(500);
   Resp = readstringin();
@@ -163,8 +120,7 @@ String Network::getSignalStrength() // Displays the Radio Signal Strength.
 
 
 
-String Network::getNetworkStatus() // Displays current network registration status.
-{
+String Network::getNetworkStatus() { // Displays current network registration status.
   Serial2.println("AT+CREG?");
   delay(500);
   Resp = readstringin();
@@ -174,36 +130,31 @@ String Network::getNetworkStatus() // Displays current network registration stat
 
 }
 
-void Network::setPDN(int ipType, String apn) // IP Type: 1 - IPV4, 2 - IPV6, 3 - IPV4V6, 4 - No IP (NB-IoT Paging).
-{
-  String IPV4= "1";
-  String IPV6= "2";
-  String IPV4V6= "3";
-  String NOIP= "5";
+void Network::setPDN(int ipType, String apn) { // IP Type: 1 - IPV4, 2 - IPV6, 3 - IPV4V6, 4 - No IP (NB-IoT Paging).
   Serial.print("Setting APN to ");
-  switch (ipType){
+  switch (ipType) {
     case 1:
-    AtCommand  = "AT+CFGDFTPDN=" + IPV4 + comma + quotes + apn + quotes;
-    Serial2.println(AtCommand);
-    Serial.println(apn);
-    break;
+      AtCommand  = "AT+CFGDFTPDN=" + "1" + comma + quotes + apn + quotes;
+      Serial2.println(AtCommand);
+      Serial.println(apn);
+      break;
     case 2:
-    AtCommand  = "AT+CFGDFTPDN=" + IPV6 + comma + quotes + apn + quotes;
-    Serial2.println(AtCommand);
-    Serial.println(apn);
-    break;
+      AtCommand  = "AT+CFGDFTPDN=" + "2" + comma + quotes + apn + quotes;
+      Serial2.println(AtCommand);
+      Serial.println(apn);
+      break;
     case 3:
-    AtCommand  = "AT+CFGDFTPDN=" + IPV4V6 + comma + quotes + apn + quotes;
-    Serial2.println(AtCommand);
-    Serial.println(apn);
-    break;
-    case 4:
-    AtCommand  = "AT+CFGDFTPDN=" + NOIP + comma + quotes + apn + quotes;
-    Serial2.println(AtCommand);
-    Serial.println(apn);
-    break;
+      AtCommand  = "AT+CFGDFTPDN=" + "3" + comma + quotes + apn + quotes;
+      Serial2.println(AtCommand);
+      Serial.println(apn);
+      break;
+    case 5:
+      AtCommand  = "AT+CFGDFTPDN=" + "5" + comma + quotes + apn + quotes;
+      Serial2.println(AtCommand);
+      Serial.println(apn);
+      break;
     default:
-    break;
+      break;
   }
 }
 
