@@ -23,8 +23,10 @@ void setup() {
   }
   while(!Network.enablePacketData(true)) {
   }
-  Serial.println("Packet Data Attached");
-  Serial.println("Ping IP:"+Network.getPingStatus("google.com").addr+Network.getPingStatus("google.com").stats);
+  if(Network.getPacketDataStatus()) {
+    Serial.println("Packet Data Attached");
+    Serial.println("Ping IP:"+Network.getPingStatus("google.com").addr+Network.getPingStatus("google.com").stats);
+  }
 }
 
 void loop() {

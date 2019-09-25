@@ -251,6 +251,29 @@ String Network::getDefaultPDN() { // Dsiplays default PDN configured.
 	return (tmp);
 }
 
+bool Network::getPacketDataStatus() { // Displays Packet Data status.
+	Serial2.println("AT+CGACT?");
+	CS_MODEM_RES res = serial_res(500,F("+CGACT"));
+	String tmp;
+	bool netStat;
+	String data;
+	if(res.status) {
+		data = res.data;
+		if(res.data.indexOf(F("+CGACT"))!=-1) {
+			int first = res.data.indexOf(F(":"));
+			int last = res.data.indexOf(F(","));
+			tmp = res.data.substring(first+2,last+2);
+		} 
+		if (tmp == F("1,1")) {
+			netStat = true;
+		} else {
+			netStat = false;
+		}
+	}
+	res = serial_res(500,F("OK"));
+	return(netStat);
+}
+
 ping Network::getPingStatus(String hostname) { // Ping to a hostname and get the ping quality report.
 	ping pingr;
 	String data = "";

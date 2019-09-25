@@ -54,7 +54,7 @@ class Network {
     String getIMSI(); // Displays IMSI of the active SIM Card.
     String getNetTime(); // Dsipalys the time received from the network.
     String getDefaultPDN(); // Dsiplays default PDN configured.
-    // String getPacketDataStatus(); // Displays Packet Data status.
+    bool getPacketDataStatus(); // Displays Packet Data status.
     // String getPSMStatus(); // Displays current Power Save Mode Status.
     // String getLowPowerStatus(); // Displays current Low Power Mode (eDRX Mode) Status.
     // String getDNSAddr(); // Get current active DNS Addresses.
