@@ -28,7 +28,7 @@ struct ping {
 class Network {
   public:
     Network(bool displayMsg=false);
-    void SerialInit();
+    void SerialInit(); // Modem Serial Comm Initiate. Mandatory function to be called before all other API functions.
     
   // Network Function Method
     bool radioEnable (bool enable); // True - Enable Cellular Radio, False - Disable Cellular Radio. 
@@ -57,8 +57,8 @@ class Network {
     bool getPacketDataStatus(); // Displays Packet Data status.
     // String getPSMStatus(); // Displays current Power Save Mode Status.
     // String getLowPowerStatus(); // Displays current Low Power Mode (eDRX Mode) Status.
-    // String getDNSAddr(); // Get current active DNS Addresses.
-    // String getIPAddr(); // Get the current modem IP address.
+    String getDNSAddr(); // Get current active DNS Addresses.
+    String getIPAddr(); // Get the current modem IP address.
     ping getPingStatus(String hostname); // Ping to a hostname and get the ping quality report.
     // String getSMSCenterNumber(); // Displays the SMS Center Number from the SIM Card.
     

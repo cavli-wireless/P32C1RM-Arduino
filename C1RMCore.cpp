@@ -8,7 +8,7 @@ Network::Network(bool displayMsg){
   //Anything yoy need when initiating object goes here
 }
 
-void Network::SerialInit() {
+void Network::SerialInit() { // Modem Serial Comm Initiate. Mandatory function to be called before all other API functions.
   Serial2.begin(57600, SERIAL_8N1, 27, 26);
 }
 
@@ -165,8 +165,8 @@ String Network::getModemInfo () {
 	Serial2.println(F("ATI"));
 	CS_MODEM_RES res = serial_res(500,F("OK"));
 	String out = res.temp;
-    out.replace(F("OK"),"");
-	out = out.substring(0,out.length());
+	int info_last = out.indexOf(F("Build Date:"));
+	out = out.substring(1,info_last+20);
 	res = serial_res(500,F("OK"));
 	return (out);
 }
@@ -175,18 +175,17 @@ String Network::getIMEI() { // Displays IMEI Number.
 	Serial2.println("AT+CGSN");
 	CS_MODEM_RES res = serial_res(500,F("OK"));
 	String out = res.temp;
-    out.replace(F("OK"),"");
-	out = out.substring(0,out.length());
+	out = out.substring(1,16);
 	res = serial_res(500,F("OK"));
 	return (out);
 }
 
 String Network::getICCID() { // Displays ICCID of the active SIM Card.
 	Serial2.println("AT+CCID");
-	CS_MODEM_RES res = serial_res(500,F("OK"));
+	CS_MODEM_RES res = serial_res(500,F("+CCID"));
 	String out = res.temp;
-    out.replace(F("OK"),"");
-	out = out.substring(0,out.length());
+	int iccid_start = out.indexOf(F(":"))+2;
+	out = out.substring(iccid_start,iccid_start+19);
 	res = serial_res(500,F("OK"));
 	return (out);
 }
@@ -195,8 +194,7 @@ String Network::getIMSI() { // Displays IMSI of the active SIM Card.
 	Serial2.println("AT+CIMI");
 	CS_MODEM_RES res = serial_res(500,F("OK"));
 	String out = res.temp;
-    out.replace(F("OK"),"");
-	out = out.substring(0,out.length());
+	out = out.substring(1,16);
 	res = serial_res(500,F("OK"));
 	return (out);
 }
@@ -215,7 +213,7 @@ radio Network::getRadioQuality() {
 		if(res.data.indexOf(F("+CSQ"))!=-1) {
 			int index = res.data.indexOf(F(":"));
 			int index2 = res.data.indexOf(F(","));
-			tmp = res.data.substring(index+1,index2);
+			tmp = res.data.substring(index+2,index2);
 			if (tmp == F("99")) {
 				sig.csq = F("N/A");
 				sig.rssi = F("N/A");
@@ -272,6 +270,29 @@ bool Network::getPacketDataStatus() { // Displays Packet Data status.
 	}
 	res = serial_res(500,F("OK"));
 	return(netStat);
+}
+
+String Network::getIPAddr() { // Get the current modem IP address.
+	Serial2.println("AT+CGPADDR");
+	CS_MODEM_RES res = serial_res(500,F("+CGPADDR"));
+	String out = res.temp;
+	int addr_start = out.indexOf(F(":"))+5;
+	int addr_end = out.indexOf(F("\","));
+	out = out.substring(addr_start,addr_end);
+	res = serial_res(500,F("OK"));
+	return (out);
+}
+
+String Network::getDNSAddr() { // Get current active DNS Addresses.
+	Serial2.println("AT+CGPDNSADDR=1");
+	CS_MODEM_RES res = serial_res(500,F("+CGPDNSADDR"));
+	String out = res.temp;
+	int addr_start = out.indexOf(F(":"))+5;
+	out = out.substring(addr_start,out.length());
+	int addr_end = out.indexOf(F("\""));
+	out = out.substring(0,addr_end);
+	res = serial_res(500,F("OK"));
+	return (out);
 }
 
 ping Network::getPingStatus(String hostname) { // Ping to a hostname and get the ping quality report.
