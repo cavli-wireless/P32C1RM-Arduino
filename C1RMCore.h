@@ -6,7 +6,6 @@
 #else
   #include "WProgram.h"
 #endif
-//#include <Stream.h>
 
 struct CS_MODEM_RES {
 	unsigned char status;
@@ -23,8 +22,7 @@ struct radio {
 struct ping {
 	bool status;
 	String addr;
-	String ttl;
-	String rtt;
+	String stats;
 };
 
 class Network {
@@ -35,6 +33,8 @@ class Network {
   // Network Function Method
     bool radioEnable (bool enable); // True - Enable Cellular Radio, False - Disable Cellular Radio. 
     bool networkAttach (bool enable); // True - Attach to Cellular Network, False - Dettach from Cellular Service.
+    bool prefRadioPriority (int net_type); // Change network priority for radio scanning. 1 - Preffered NB-IoT, 2 - Preffered EGPRS.
+    bool prefRadioMode (int mode); // 1 - Single mode 2 - Dual Mode. Single or Dual Radio with network preference taken from the prefRadioPriority.
     bool setPDN(int ipType, String apn); // IP Type: 1 - IPV4, 2 - IPV6, 3 - IPV4V6, 5 - No IP (NB-IoT Paging).
     bool enablePacketData (bool enable); // True - Attach to Data Service, False - Dettach from Data Service.
     bool setDNSAddr(String primaryDNS, String secondaryDNS); // Manual configuration for Primary and Secondary DNS IP Address.
@@ -44,16 +44,15 @@ class Network {
     bool shutdown(); // Modem will be powered down. Toggle RESET PIN externally to Switch ON.
     bool modemReset(); // Modem will go for Hard Reset. The same function can be used to Switch ON Modem after a Shutdown or as warm reboot.
 
-
   // Get Info methods
     bool isModemAvailable(); // Returns true if a valid modem response is received.
     bool isNetworkAttached(); // Returns true if the modem is registered to the network.
+    radio getRadioQuality(); // Displays the Radio Signal Strength.
     String getModemInfo(); // Displays details Modem Information.
     String getIMEI(); // Displays IMEI Number.
     String getICCID(); // Displays ICCID of the active SIM Card.
     String getIMSI(); // Displays IMSI of the active SIM Card.
     String getNetTime(); // Dsipalys the time received from the network.
-    radio getRadioQuality(); // Displays the Radio Signal Strength.
     String getDefaultPDN(); // Dsiplays default PDN configured.
     // String getPacketDataStatus(); // Displays Packet Data status.
     // String getPSMStatus(); // Displays current Power Save Mode Status.

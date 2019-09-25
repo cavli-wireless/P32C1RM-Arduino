@@ -35,6 +35,42 @@ bool Network::networkAttach (bool enable) { // True - Attach to Cellular Network
 	return(res.status);
 }
 
+bool Network::prefRadioPriority (int net_type) { // Change network priority for radio scanning. 1 - Preffered NB-IoT, 2 - Preffered EGPRS.
+	Serial2.print("AT+CFGRATPRIO=");
+	if(net_type == 1) {
+		Serial2.println("4");
+	} else if (net_type == 2) {
+		Serial2.println("2");
+	}
+	CS_MODEM_RES res = serial_res(500,F("OK"));
+	reboot();
+	return(res.status);
+}
+ 
+bool Network::prefRadioMode (int mode) { // 1 - Single mode 2 - Dual Mode. Single or Dual Radio with network preference taken from the prefRadioPriority.
+	CS_MODEM_RES res;
+	if(mode == 1) {
+		String rat_prio = "";
+		Serial2.println("AT+CFGRATPRIO?");
+		res = serial_res(500,F("+CFGRATPRIO"));
+		int rat_start = res.data.indexOf(F(":"));
+		rat_prio = res.data.substring(rat_start+2,rat_start+3);
+		res = serial_res(500,F("OK"));
+		Serial2.print("AT+CFGDUALMODE=");
+		if(rat_prio == "2") {
+			Serial2.println("0,0");
+		} else if (rat_prio == "4") {
+			Serial2.println("0,1");
+		}
+	} else if (mode == 2) {
+		Serial2.print("AT+CFGDUALMODE=");
+		Serial2.println("1,1");
+	}
+	res = serial_res(500,F("OK"));
+	reboot();
+	return(res.status);
+}
+
 bool Network::setPDN(int ipType, String apn) { // IP Type: 1 - IPV4, 2 - IPV6, 3 - IPV4V6, 5 - No IP (NB-IoT Paging).
 	Serial2.print("AT+CFGDFTPDN=");
 	Serial2.println(ipType + comma + quotes + apn + quotes);
@@ -220,21 +256,23 @@ ping Network::getPingStatus(String hostname) { // Ping to a hostname and get the
 	String data = "";
 	Serial2.print(F("AT+PING="));
 	Serial2.println(quotes + hostname + quotes);
-	CS_MODEM_RES res = serial_res(10000,F("OK"));
+	CS_MODEM_RES res = serial_res(10000,F("Ping"));
 	if(res.status) {
 		data = res.data;
-		Serial.println(data);
-		int index = data.indexOf(F(":"));
-		int index2 = data.indexOf(F(","));
-		int index3 = data.indexOf(F(","),index2+1);
+		int ip_start = data.indexOf(F("for"))+4;
+		int ip_end = data.indexOf(F("\n"),ip_start);
+		pingr.addr = data.substring(ip_start,ip_end-2);
+		res = serial_res(500,F("Packets:"));
+		data = res.data;
+		int stats_start = data.indexOf(F("Packets:"))+9;
+		int stats_end = data.indexOf(F("\n"),stats_start);
+		pingr.stats = data.substring(stats_start,stats_end-2);
 		pingr.status = true;
-		pingr.addr = data.substring(index+1,index2);
-		pingr.ttl = data.substring(index2+1,index3);
-		pingr.rtt = data.substring(index3+1,data.length());
-		Serial.println("# Ping IP:"+pingr.addr + ",ttl= " + pingr.ttl + ",rtt= " + pingr.rtt);
-
-	}else {Serial.println("# Ping Failed");}
-	res = serial_res(500,F("OK"));
+	} else {
+		Serial.println("# Ping Failed");
+		pingr.status = false;
+	}
+	res = serial_res(500,F("+CSCON: 0"));
 	return pingr;
 }
 
