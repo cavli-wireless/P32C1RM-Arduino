@@ -4,10 +4,6 @@ HardwareSerial Serial2(2);
 String comma = ",";
 String quotes = "\"";
 
-Network::Network(bool displayMsg){
-  //Anything yoy need when initiating object goes here
-}
-
 void Network::SerialInit() { // Modem Serial Comm Initiate. Mandatory function to be called before all other API functions.
   Serial2.begin(57600, SERIAL_8N1, 27, 26);
 }
@@ -126,8 +122,22 @@ bool Network::shutdown() { // Modem will be powered down. Toggle RESET PIN exter
 	return(res.status);
 }
 
-bool Network::modemReset() { // Modem will go for Hard Reset. The same function can be used to Switch ON Modem after a Shutdown or as warm reboot.
-// To be completed.
+void Network::modemReset() { // Modem will go for Hard Reset. The same function can be used to Switch ON Modem after a Shutdown or as warm reboot.
+	int resetPin = 23;
+	pinMode(resetPin, OUTPUT);
+	digitalWrite(resetPin, HIGH);
+  	delay(1000);
+  	digitalWrite(resetPin, LOW);
+	Serial.println("Modem Reset Complete.");
+}
+
+bool Network::modemWakeUp() { // Wake Up the modem from Sleep Mode.
+	int wakePin = 18;
+	pinMode(wakePin, OUTPUT);
+	digitalWrite(wakePin, HIGH);
+  	delay(1000);
+  	digitalWrite(wakePin, LOW);
+	Serial.println("Modem Wake up Initiated.");
 }
 
 // Get Functions.
@@ -136,6 +146,28 @@ bool Network::isModemAvailable() { // Returns true if a valid modem response is 
 	Serial2.println("AT");
 	CS_MODEM_RES res = serial_res(500,F("OK"));
 	return(res.status);
+}
+
+bool Network::isESIMReady() { // Returns true if the eSIM is ready for registration.
+	Serial2.print("AT+SIM=");
+	Serial2.println("0");
+	CS_MODEM_RES res = serial_res(500,F("+USIM"));
+	String data;
+	String tmp;
+	bool simStat;
+	if(res.status) {
+		data = res.data;
+		int esim_first = data.indexOf(F(":"));
+		tmp = data.substring(esim_first+2,esim_first+8);
+		if(tmp == "NORMAL") {
+			simStat = true;
+		} else {
+			simStat = false;
+		}
+	} else {
+		simStat = false;
+	}
+	return (simStat);
 }
 
 bool Network::isNetworkAttached() { // Returns true if the modem is registered to the network.
@@ -161,12 +193,14 @@ bool Network::isNetworkAttached() { // Returns true if the modem is registered t
 	return(netStat);
 }
 
-String Network::getModemInfo () {
-	Serial2.println(F("ATI"));
+String Network::getModemInfo () { // Displays the Modem Manufacturer and Firmware information.
 	CS_MODEM_RES res = serial_res(500,F("OK"));
+	Serial2.println(F("ATI"));
+	res = serial_res(500,F("OK"));
 	String out = res.temp;
+	int info_first = out.indexOf(F("Manufacturer:"));
 	int info_last = out.indexOf(F("Build Date:"));
-	out = out.substring(1,info_last+20);
+	out = out.substring(info_first,info_last+20);
 	res = serial_res(500,F("OK"));
 	return (out);
 }

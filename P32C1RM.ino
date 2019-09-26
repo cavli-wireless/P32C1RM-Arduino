@@ -1,8 +1,12 @@
 #include "C1RMCore.h"
-Network Network(true);
+Network Network;
 bool modemWait = false;
+bool networkWait = false;
+bool dataWait = false;
+bool simWait = false;
 int ledPin = 5;
 void setup() { 
+  Network.modemReset();
   Serial.begin(115200);
   Network.SerialInit();
   pinMode(ledPin, OUTPUT);
@@ -15,16 +19,40 @@ void setup() {
     }
   }
   Serial.println("Modem Ready");
+  delay(10000);
   Serial.println(Network.getModemInfo());
   Serial.println(Network.getIMEI());
   Serial.println(Network.getICCID());
-  Serial.println(Network.getIMSI());
+  while(!Network.isESIMReady()) {
+    if(!simWait) {
+      Serial.print("Waiting for eSIM.");
+      simWait = true;
+    } else {
+      delay(500);
+      Serial.print(".");
+    }
+  }
+  Serial.println("eSIM: READY");
   while(!Network.isNetworkAttached()) {
+    if(!networkWait) {
+      Serial.print("Waiting for Network.");
+      networkWait = true;
+    } else {
+      delay(500);
+      Serial.print(".");
+    }
   } Serial.println("Registered to Network");
   if(Network.setPDN(3,"hubblethings.io")) {
     Serial.println(Network.getDefaultPDN());
   }
   while(!Network.enablePacketData(true)) {
+    if(!dataWait) {
+      Serial.print("Waiting for GPRS.");
+      dataWait = true;
+    } else {
+      delay(500);
+      Serial.print(".");
+    }
   }
   if(Network.getPacketDataStatus()) {
     Serial.println("Packet Data Attached");

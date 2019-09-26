@@ -27,7 +27,7 @@ struct ping {
 
 class Network {
   public:
-    Network(bool displayMsg=false);
+  // Public API Functions starts here.
     void SerialInit(); // Modem Serial Comm Initiate. Mandatory function to be called before all other API functions.
     
   // Network Function Method
@@ -40,12 +40,14 @@ class Network {
     bool setDNSAddr(String primaryDNS, String secondaryDNS); // Manual configuration for Primary and Secondary DNS IP Address.
     bool enablePSM (bool enable, String interval, String start_timer); // True - Module enter in to Power Save Mode, False - Power Save Mode Disabled.
     bool enableEDRX (String mode, String interval, String edrx_val); // Mode 0 - Disable eDRX, 1 - Enable eDRX, 2 - Enable eDRX with unsolicited result code.
-    bool reboot(); // Reboots the Modem. This is cold reboot.
+    bool reboot(); // Reboots the Modem. This is a cold reboot.
     bool shutdown(); // Modem will be powered down. Toggle RESET PIN externally to Switch ON.
-    bool modemReset(); // Modem will go for Hard Reset. The same function can be used to Switch ON Modem after a Shutdown or as warm reboot.
+    void modemReset(); // Modem will go for Hard Reset. The same function can be used to Switch ON Modem after a Shutdown or as warm reboot.
+    bool modemWakeUp(); // Wake Up the modem from Sleep Mode.
 
-  // Get Info methods
+  // Get Info/Status methods.
     bool isModemAvailable(); // Returns true if a valid modem response is received.
+    bool isESIMReady(); // Returns true if the eSIM is ready for registration.
     bool isNetworkAttached(); // Returns true if the modem is registered to the network.
     radio getRadioQuality(); // Displays the Radio Signal Strength.
     String getModemInfo(); // Displays details Modem Information.
