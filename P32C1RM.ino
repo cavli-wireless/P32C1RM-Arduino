@@ -1,10 +1,11 @@
 #include "C1RMCore.h"
 Network Network(true);
 bool modemWait = false;
-
+int ledPin = 5;
 void setup() { 
   Serial.begin(115200);
   Network.SerialInit();
+  pinMode(ledPin, OUTPUT);
   while(!Network.isModemAvailable()) {
     if(!modemWait) {
       Serial.print("Waiting for modem.");
@@ -35,5 +36,12 @@ void setup() {
 }
 
 void loop() {
-
+  digitalWrite(ledPin, HIGH);
+  delay(100);
+  digitalWrite(ledPin, LOW);
+  delay(100);
+  digitalWrite(ledPin, HIGH);
+  delay(100);
+  digitalWrite(ledPin, LOW);
+  delay(700);
 }
