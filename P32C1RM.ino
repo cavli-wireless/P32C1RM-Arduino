@@ -61,8 +61,24 @@ void setup() {
     Serial.println("Ping IP:"+Network.getPingStatus("google.com").addr+Network.getPingStatus("google.com").stats);
   }
   Serial.println("RF Strength="+Network.getRadioQuality().csq+", RSSI="+Network.getRadioQuality().rssi+", BER="+Network.getRadioQuality().ber);
-}
 
+  Network.readSMS("2","ME");
+  Network.sendSMS("9745899513","Its me cavli Wireless");
+  
+
+  if(!(Network.createMQTT("broker.mqttdashboard.com","1883","1111", "60","0","test_123","123__4"))){
+  }Serial.println("MQTT Connection Created!!");
+  if(!(Network.publishMQTT("Hubble","Cavli-R&D-KOCHI","0","0","0"))){
+  }Serial.println("MQTT Message Published Successfully");
+  Network.subscribeMQTT("Hubble123","0",true);
+  if(!(Network.disconnectMQTT())){
+  }Serial.println("MQTT Message Disconnected Successfully");
+
+//  Network.createCoAP("8.8.8.8");
+//  Network.sendCoAPData("2","1232");
+//  Network.closeCoAP();
+
+}
 void loop() {
   digitalWrite(ledPin, HIGH);
   delay(100);
