@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 #include "C1RMCore.h"
 Network Network;
 bool modemWait = false;
@@ -5,6 +6,12 @@ bool networkWait = false;
 bool dataWait = false;
 bool simWait = false;
 int ledPin = 5;
+=======
+#include "lib/C1RM.h"
+
+Network Response(true);
+
+>>>>>>> Stashed changes
 void setup() { 
   Network.modemReset();
   Serial.begin(115200);

@@ -9,26 +9,36 @@ void Network::SerialInit() { // Modem Serial Comm Initiate. Mandatory function t
 }
 
 bool Network::radioEnable (bool enable) { // True - Enable Cellular Radio, False - Disable Cellular Radio.
-	Serial2.print("AT+CFUN=");
-	if (enable) {
-   		Serial2.println("1");
- 	} else {
-   		Serial2.println("0");
- 	}
-	CS_MODEM_RES res = serial_res(500,F("OK"));
-	return(res.status);
+	if(isModemAvailable()) {
+		Serial2.print("AT+CFUN=");
+		if (enable) {
+			Serial2.println("1");
+		} else {
+			Serial2.println("0");
+		}
+		CS_MODEM_RES res = serial_res(500,F("OK"));
+		return(res.status);
+	} else {
+		Serial.println("Modem is Unavailable or Busy");
+		return(false);
+	}
 }
 
 
 bool Network::networkAttach (bool enable) { // True - Attach to Cellular Network, False - Dettach from Cellular Service.
-	Serial2.print("AT+CREG=");
-	if (enable) {
-   		Serial2.println("1");
- 	} else {
-   		Serial2.println("0");
- 	}
-	CS_MODEM_RES res = serial_res(500,F("OK"));
-	return(res.status);
+	if(isModemAvailable()) {
+		Serial2.print("AT+CREG=");
+		if (enable) {
+			Serial2.println("1");
+		} else {
+			Serial2.println("0");
+		}
+		CS_MODEM_RES res = serial_res(500,F("OK"));
+		return(res.status);
+	} else {
+		Serial.println("Modem is Unavailable or Busy");
+		return(false);
+	}
 }
 
 bool Network::prefRadioPriority (int net_type) { // Change network priority for radio scanning. 1 - Preffered NB-IoT, 2 - Preffered EGPRS.
@@ -75,14 +85,33 @@ bool Network::setPDN(int ipType, String apn) { // IP Type: 1 - IPV4, 2 - IPV6, 3
 }
 
 bool Network::enablePacketData (bool enable) { // True - Attach to Data Service, False - Dettach from Data Service.
-	Serial2.print("AT+CGACT=");
-	if (enable) {
-   		Serial2.println("1,1");
- 	} else {
-   		Serial2.println("0");
- 	}
-	CS_MODEM_RES res = serial_res(500,F("OK"));
-	return(res.status);
+	if(!getPacketDataStatus) {
+		if(isModemAvailable()) {
+			if(isNetworkAttached()) {
+				if(getDefaultPDN()) {
+					Serial2.print("AT+CGACT=");
+					if (enable) {
+						Serial2.println("1,1");
+					} else {
+						Serial2.println("0");
+					}
+					CS_MODEM_RES res = serial_res(500,F("OK"));
+					return(res.status);
+				} else {
+					Serial.println("No default PDN found");
+					return(false);
+				}
+			} else {
+				Serial.println("No Network service available");
+				return(false);
+			}
+		} else {
+			Serial.println("Modem is Unavailable or Busy");
+			return(false);
+		}
+	} else {
+		Serial.println("Packet Data is already active");
+	}
 }
 
 bool Network::setDNSAddr(String primaryDNS, String secondaryDNS) { // Manual configuration for Primary and Secondary DNS IP Address.
@@ -352,6 +381,32 @@ ping Network::getPingStatus(String hostname) { // Ping to a hostname and get the
 	}
 	res = serial_res(500,F("+CSCON: 0"));
 	return pingr;
+}
+
+String Network::getSMSCenterNumber() { // Displays the SMS Center Number from the SIM Card.
+	Serial2.println("AT+CSCA?");
+	CS_MODEM_RES res = serial_res(500,F("+CSCA"));
+	String sca = res.data;
+	int sca_start = sca.indexOf(F(":"))+3;
+	int sca_end = sca.indexOf(F(",\""))-2;
+	sca = sca.substring(sca_start,sca_end);
+	res = serial_res(500,F("OK"));
+	return (sca);
+}
+
+String Network::getNetworkOperator() { // Displays the currently attached Service Provider Name.
+	If(isNetworkAttached()) {
+		Serial2.println("AT+QSPN");
+		CS_MODEM_RES res = serial_res(500,F("+QSPN"));
+		String spn = res.data;
+		int spn_start = spn.indexOf(F(":"))+5;
+		int spn_end = spn.indexOf(F("\n"))-2;
+		spn = spn.substring(spn_start,spn_end);
+		res = serial_res(500,F("OK"));
+		return (spn);
+	} else {
+		return ("No Service");
+	}
 }
 
 CS_MODEM_RES Network::serial_res(long timeout,String chk_string) {

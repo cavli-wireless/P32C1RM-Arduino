@@ -62,7 +62,8 @@ class Network {
     String getDNSAddr(); // Get current active DNS Addresses.
     String getIPAddr(); // Get the current modem IP address.
     ping getPingStatus(String hostname); // Ping to a hostname and get the ping quality report.
-    // String getSMSCenterNumber(); // Displays the SMS Center Number from the SIM Card.
+    String getSMSCenterNumber(); // Displays the SMS Center Number from the SIM Card.
+    String getNetworkOperator(); // Displays the currently attached Service Provider Name.
     
   // SMS methods
     // String readSMS(String index, String storageType); // Prints the SMS received and stored in a specific strorage (SIM or Modem Flash) with the index number.
