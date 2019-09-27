@@ -66,20 +66,20 @@ class Network {
     String getNetworkOperator(); // Displays the currently attached Service Provider Name.
     
   // SMS methods
-    // String readSMS(String index, String storageType); // Prints the SMS received and stored in a specific strorage (SIM or Modem Flash) with the index number.
-    // bool sendSMS(String destNumber, String message); // Sends SMS to the given Destination Number.
+    String readSMS(String index, String storageType); // Prints the SMS received and stored in a specific strorage (SIM or Modem Flash) with the index number.
+    bool sendSMS(String destNumber, String message); // Sends SMS to the given Destination Number.
 
   // MQTT methods
-    // bool createMQTT(String mqttserver, String port, String clientID, String keepalive, String cleansession, String username, String password); // Create a new MQTT connection to the specified hostname and credintials.
-    // bool publishMQTT(String topic, String message, String qos, String duplicate, String retain); // Publish MQTT Message to a specified topic unding the previously created MQTT connection.
-    // void subscribeMQTT(String topic, String qos, String enable); // Subcribe to a MQTT Topic. If enable is false, the topic will be unsubscribed from the connection.
-    // void disconnectMQTT(); // Disconnect from the created MQTT server.
+    bool createMQTT(String mqttserver, String port, String clientID, String keepalive, String cleansession, String username, String password); // Create a new MQTT connection to the specified hostname and credintials.
+    bool publishMQTT(String topic, String message, String qos, String duplicate, String retain); // Publish MQTT Message to a specified topic unding the previously created MQTT connection.
+    bool subscribeMQTT(String topic, String qos, bool enable); // Subcribe to a MQTT Topic. If enable is false, the topic will be unsubscribed from the connection.
+    bool disconnectMQTT(); // Disconnect from the created MQTT server.
 
   // CoAP methods
-    // bool createCoAP(String coapserver); // Create new CoAP connection.
-    // bool sendCoAPData(String data, String dataLength); // Send data to CoAP server.
-    // void receiveCoAPData(String enable); // If enable is true, inidicates incoming message notifications and the received message.
-    // void closeCoAP(); // Close CoAP server connection.
+    bool createCoAP(String coapserver); // Create new CoAP connection.
+    bool sendCoAPData(String data, String dataLength); // Send data to CoAP server.
+    void receiveCoAPData(String enable); // If enable is true, inidicates incoming message notifications and the received message.
+    void closeCoAP(); // Close CoAP server connection.
 
 
   // HTTP/HTTPS methods

@@ -1,11 +1,11 @@
 #include "C1RMCore.h"
 
-HardwareSerial Serial2(2);
+// HardwareSerial Serial2(2);
 String comma = ",";
 String quotes = "\"";
 
 void Network::SerialInit() { // Modem Serial Comm Initiate. Mandatory function to be called before all other API functions.
-  Serial2.begin(57600, SERIAL_8N1, 27, 26);
+  Serial2.begin(57600, SERIAL_8N1, 13, 15);
 }
 
 bool Network::radioEnable (bool enable) { // True - Enable Cellular Radio, False - Disable Cellular Radio.
