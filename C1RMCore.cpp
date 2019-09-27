@@ -409,6 +409,93 @@ String Network::getNetworkOperator() { // Displays the currently attached Servic
 	}
 }
 
+bool Network::sendSMS(String destNumber, String message) { // Sends SMS to the given Destination Number.
+	Serial2.println("AT+CMGF=1");
+	CS_MODEM_RES res = serial_res(500,F("OK"));
+	Serial2.print(F("AT+CMGS="));
+	Serial2.println(quotes + destNumber + quotes);
+	Serial2.println(message + "\x1a");
+	res = serial_res(20000,F("OK"));
+	return res.status;
+}
+
+
+String Network::readSMS(String index, String storageType) { // Prints the SMS received and stored in a specific strorage (SIM or Modem Flash) with the index number.
+	Serial2.print(F("AT+CPMS="));
+	Serial2.println(quotes + storageType + quotes);
+	CS_MODEM_RES res = serial_res(10000,F("OK"));
+	Serial2.print(F("AT+CMGR="));
+	Serial2.println(index);
+	res = serial_res(10000,F("OK"));
+	String out = res.temp;
+    out.replace(F("OK"),"");
+	out = out.substring(0,out.length());
+	Serial.println(out);
+	return out;
+}
+
+bool Network::createMQTT(String mqttserver, String port, String clientID, String keepalive, String cleansession, String username, String password) { // Create a new MQTT connection to the specified hostname and credintials.
+	Serial2.print(F("AT+MQTTCONN="));
+	Serial2.println(quotes + mqttserver + quotes + comma + port + comma + quotes + clientID + quotes + comma + keepalive + comma + cleansession + comma + quotes + username + quotes + comma + quotes + password + quotes);
+	CS_MODEM_RES res = serial_res(10000,F("OK"));
+	return res.status;
+}
+
+bool Network::publishMQTT(String topic, String message, String qos, String duplicate, String retain) { // Publish MQTT Message to a specified topic unding the previously created MQTT connection.
+	Serial2.print(F("AT+MQTTPUB="));
+	Serial2.println(quotes + topic + quotes + comma +  quotes + message + quotes + comma + qos + comma + duplicate + comma + retain);
+	CS_MODEM_RES res = serial_res(10000,F("OK"));
+	return res.status;
+}
+
+bool Network::subscribeMQTT(String topic, String qos, bool enable) { // Subcribe to a MQTT Topic. If enable is false, the topic will be unsubscribed from the connection.
+	Serial2.print(F("AT+MQTTSUBUNSUB="));
+	if(enable) {
+		Serial2.println(quotes + topic + quotes + comma + "1" + comma + qos);
+	} else {
+		Serial2.println(quotes + topic + quotes + comma + "0");
+	}
+	CS_MODEM_RES res = serial_res(10000,F("OK"));
+	return res.status;
+}
+
+bool Network::disconnectMQTT() { // Disconnect from the created MQTT server.
+	Serial2.println("AT+MQTTDISCONN");
+	CS_MODEM_RES res = serial_res(500,F("OK"));
+	return res.status;
+}
+
+bool Network::createCoAP(String coapserver) { // Create new CoAP connection.
+	Serial2.print(F("AT+NCDPOPEN="));
+	Serial2.println(quotes + coapserver + quotes);
+	CS_MODEM_RES res = serial_res(500,F("OK"));
+	return res.status;
+}
+
+bool Network::sendCoAPData(String data, String dataLength) { // Send data to CoAP server.
+	Serial2.print(F("AT+NMGS="));
+	Serial2.println(data + comma + dataLength);
+	CS_MODEM_RES res = serial_res(500,F("OK"));
+	return res.status;
+}
+
+
+// void Network::receiveCoAPData(String enable)  // Pending 
+// {
+// 	Serial2.println("AT+NMGR");
+// 	CS_MODEM_RES res = serial_res(500,F("OK"));
+// 	res = serial_res(10000,F("OK"));
+// 	String out = res.temp;
+//     out.replace(F("OK"),"");
+// 	out = out.substring(0,out.length());
+// 	enable = out;
+// }
+
+void Network::closeCoAP() {
+	Serial2.print(F("AT+NCDPCLOSE"));
+	CS_MODEM_RES res = serial_res(500,F("OK"));
+}
+
 CS_MODEM_RES Network::serial_res(long timeout,String chk_string) {
 	unsigned long pv_ok = millis();
 	unsigned long current_ok = millis();
