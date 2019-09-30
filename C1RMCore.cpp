@@ -1,11 +1,11 @@
 #include "C1RMCore.h"
 
-// HardwareSerial Serial2(2);
+HardwareSerial Serial2(2);
 String comma = ",";
 String quotes = "\"";
 
 void Network::SerialInit() { // Modem Serial Comm Initiate. Mandatory function to be called before all other API functions.
-  Serial2.begin(57600, SERIAL_8N1, 13, 15);
+  Serial2.begin(57600, SERIAL_8N1, 27, 26);
 }
 
 bool Network::radioEnable (bool enable) { // True - Enable Cellular Radio, False - Disable Cellular Radio.
@@ -85,7 +85,7 @@ bool Network::setPDN(int ipType, String apn) { // IP Type: 1 - IPV4, 2 - IPV6, 3
 }
 
 bool Network::enablePacketData (bool enable) { // True - Attach to Data Service, False - Dettach from Data Service.
-	if(!getPacketDataStatus) {
+	if(!getPacketDataStatus()) {
 		if(isModemAvailable()) {
 			if(isNetworkAttached()) {
 				if(getDefaultPDN()) {
@@ -395,7 +395,7 @@ String Network::getSMSCenterNumber() { // Displays the SMS Center Number from th
 }
 
 String Network::getNetworkOperator() { // Displays the currently attached Service Provider Name.
-	If(isNetworkAttached()) {
+	if(isNetworkAttached()) {
 		Serial2.println("AT+QSPN");
 		CS_MODEM_RES res = serial_res(500,F("+QSPN"));
 		String spn = res.data;
