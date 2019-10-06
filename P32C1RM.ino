@@ -5,9 +5,22 @@ bool networkWait = false;
 bool dataWait = false;
 bool simWait = false;
 int ledPin = 5;
+String temp = "";
+int tempCount = 0;
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+uint8_t temprature_sens_read();
+#ifdef __cplusplus
+}
+#endif
+uint8_t temprature_sens_read();
+
 
 void setup() { 
-  Network.modemReset();
+  // Network.modemReset();
   Serial.begin(115200);
   Network.SerialInit();
   pinMode(ledPin, OUTPUT);
@@ -63,17 +76,17 @@ void setup() {
   }
   Serial.println("RF Strength="+Network.getRadioQuality().csq+", RSSI="+Network.getRadioQuality().rssi+", BER="+Network.getRadioQuality().ber);
 
-  Network.readSMS("2","ME");
-  Network.sendSMS("9745899513","Its me cavli Wireless");
+  // Network.readSMS("2","ME");
+  // Network.sendSMS("9745899513","Its me cavli Wireless");
   
 
   if(!(Network.createMQTT("broker.mqttdashboard.com","1883","1111", "60","0","test_123","123__4"))){
   }Serial.println("MQTT Connection Created!!");
-  if(!(Network.publishMQTT("Hubble","Cavli-R&D-KOCHI","0","0","0"))){
+  if(!(Network.publishMQTT("Hubble","Cavli-R&D-KOCHI\n","0","0","0"))){
   }Serial.println("MQTT Message Published Successfully");
-  Network.subscribeMQTT("Hubble123","0",true);
-  if(!(Network.disconnectMQTT())){
-  }Serial.println("MQTT Message Disconnected Successfully");
+  Network.subscribeMQTT("Hubble","0",true);
+  // if(!(Network.disconnectMQTT())){
+  // }Serial.println("MQTT Message Disconnected Successfully");
 
 //  Network.createCoAP("8.8.8.8");
 //  Network.sendCoAPData("2","1232");
@@ -89,4 +102,10 @@ void loop() {
   delay(100);
   digitalWrite(ledPin, LOW);
   delay(700);
+  if(tempCount == 60 || tempCount == 0){
+    temp = (temprature_sens_read() - 32) / 1.8;
+    Network.publishMQTT("Hubble",temp+"\n","0","0","0");
+    tempCount = 0;
+  }
+  tempCount = tempCount + 1;
 }
