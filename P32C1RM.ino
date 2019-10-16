@@ -20,7 +20,7 @@ uint8_t temprature_sens_read();
 
 
 void setup() { 
-  // Network.modemReset();
+  Network.modemReset();
   Serial.begin(115200);
   Network.SerialInit();
   pinMode(ledPin, OUTPUT);
@@ -49,7 +49,7 @@ void setup() {
   Serial.println("eSIM: READY");
   while(!Network.isNetworkAttached()) {
     if(!networkWait) {
-      Serial.print("Waiting for Network.");
+      Serial.print("Scanning for Network.");
       networkWait = true;
     } else {
       delay(500);
@@ -61,7 +61,7 @@ void setup() {
   }
   while(!Network.enablePacketData(true)) {
     if(!dataWait) {
-      Serial.print("Waiting for GPRS.");
+      Serial.print("Enabling GPRS.");
       dataWait = true;
     } else {
       delay(500);
@@ -71,7 +71,6 @@ void setup() {
   if(Network.getPacketDataStatus()) {
     Serial.println("Packet Data Attached");
     Serial.println(Network.getIPAddr());
-    Serial.println(Network.getDNSAddr());
     Serial.println("Ping IP:"+Network.getPingStatus("google.com").addr+Network.getPingStatus("google.com").stats);
   }
   Serial.println("RF Strength="+Network.getRadioQuality().csq+", RSSI="+Network.getRadioQuality().rssi+", BER="+Network.getRadioQuality().ber);
@@ -105,6 +104,7 @@ void loop() {
   if(tempCount == 60 || tempCount == 0){
     temp = (temprature_sens_read() - 32) / 1.8;
     Network.publishMQTT("Hubble",temp+"\n","0","0","0");
+    Serial.println("Internal Temperature: " + temp);
     tempCount = 0;
   }
   tempCount = tempCount + 1;

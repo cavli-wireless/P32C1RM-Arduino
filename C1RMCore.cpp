@@ -109,9 +109,7 @@ bool Network::enablePacketData (bool enable) { // True - Attach to Data Service,
 			Serial.println("Modem is Unavailable or Busy");
 			return(false);
 		}
-	} else {
-		Serial.println("Packet Data is already active");
-	}
+	} 
 }
 
 bool Network::setDNSAddr(String primaryDNS, String secondaryDNS) { // Manual configuration for Primary and Secondary DNS IP Address.
@@ -197,6 +195,13 @@ bool Network::isESIMReady() { // Returns true if the eSIM is ready for registrat
 		simStat = false;
 	}
 	return (simStat);
+}
+
+bool Network::setNetworkAuto() {
+	Serial2.print("AT+COPS=");
+   	Serial2.println("0");
+	CS_MODEM_RES res = serial_res(500,F("OK"));
+	return(res.status);
 }
 
 bool Network::isNetworkAttached() { // Returns true if the modem is registered to the network.

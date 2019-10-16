@@ -33,6 +33,7 @@ class Network {
   // Network Function Method
     bool radioEnable (bool enable); // True - Enable Cellular Radio, False - Disable Cellular Radio. 
     bool networkAttach (bool enable); // True - Attach to Cellular Network, False - Dettach from Cellular Service.
+    bool setNetworkAuto ();
     bool prefRadioPriority (int net_type); // Change network priority for radio scanning. 1 - Preffered NB-IoT, 2 - Preffered EGPRS.
     bool prefRadioMode (int mode); // 1 - Single mode 2 - Dual Mode. Single or Dual Radio with network preference taken from the prefRadioPriority.
     bool setPDN(int ipType, String apn); // IP Type: 1 - IPV4, 2 - IPV6, 3 - IPV4V6, 5 - No IP (NB-IoT Paging).
