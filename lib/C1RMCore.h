@@ -77,19 +77,26 @@ class Network {
     bool disconnectMQTT(); // Disconnect from the created MQTT server.
 
   // CoAP methods
-    bool createCoAP(String coapserver); // Create new CoAP connection.
-    bool sendCoAPData(String data, String dataLength); // Send data to CoAP server.
-    void receiveCoAPData(String enable); // If enable is true, inidicates incoming message notifications and the received message.
-    void closeCoAP(); // Close CoAP server connection.
-
+  bool createCoAP(String coapserver);                // Create new CoAP connection.
+  bool sendCoAPData(String data, String dataLength); // Send data to CoAP server.
+  void receiveCoAPData(String enable);               // If enable is true, inidicates incoming message notifications and the received message.
+  void closeCoAP();                                  // Close CoAP server connection.
 
   // HTTP/HTTPS methods
 
-
   // TCP IP methods
-
+  bool initSingleTCP(String ipmode, String addr, int port);            //Initialize single TCP connection,Set Mode- "TCP"/"UDP", IP address, Port
+  bool initMultiTCP(int connum, String ipmode, String addr, int port); //Initialize Multi TCP connection, Set Transmission mode:0-AT mode 1-Transperent mode, Connection number- 0-7, Mode- "TCP"/"UDP", IP address, Port
+  bool sendTCPData(int mode, int num, String message);                 //Sends TCP Data, Mode: 0 -Single mode 1- Multimode, Connection number - 0-7, Input message to be sent
+  String recieveTCPData(int mode, int num);                            //Recieves TCP Data, Mode: 0 -Single mode 1- Multimode, Connection number - 0-7, Recieved message is returned to the fucntion
+  void closeTCP(int mode, int connum);                                 //Close TCP Connection Mode: 0 -Single mode 1- Multimode, Connection number - 0-7
+  void shutdownTCP();                                                  //Shutdown TCP connection
 
   // UDP methods
+  bool creatUDP(int port, int recievechar);                                     //Creates UDP socket connection, set port - 0-65635 (except 5683), recievechar: 0 - disable data reception 1 - enable data reception,   
+  bool sendUDP(int socketid, String raddr, int rport, int length, String data); //Sends UDP data, set socket id, raddr - IP address of the other party, rport - Port of the other party, length - Pending packet length, data - Packet, data can be HEX format or quoted string
+  String recieveUDP(int socketid, int reqlength);                               //Recieves UDP data, set socket id, reqlength - Maximum receiving data
+  void endUDP();                                                                //end UDP socket connection
   
   private:
     CS_MODEM_RES serial_res(long timeout, String chk_string);

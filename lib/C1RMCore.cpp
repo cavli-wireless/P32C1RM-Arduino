@@ -1,6 +1,6 @@
 #include "C1RMCore.h"
 
-HardwareSerial Serial2(2);
+//HardwareSerial Serial2(2);
 String comma = ",";
 String quotes = "\"";
 
@@ -50,6 +50,7 @@ bool Network::prefRadioPriority (int net_type) { // Change network priority for 
 	}
 	CS_MODEM_RES res = serial_res(500,F("OK"));
 	reboot();
+	delay(1000);
 	return(res.status);
 }
  
@@ -64,9 +65,9 @@ bool Network::prefRadioMode (int mode) { // 1 - Single mode 2 - Dual Mode. Singl
 		res = serial_res(500,F("OK"));
 		Serial2.print("AT+CFGDUALMODE=");
 		if(rat_prio == "2") {
-			Serial2.println("0,0");
+			Serial2.println("1,0");
 		} else if (rat_prio == "4") {
-			Serial2.println("0,1");
+			Serial2.println("1,0");
 		}
 	} else if (mode == 2) {
 		Serial2.print("AT+CFGDUALMODE=");
@@ -74,6 +75,7 @@ bool Network::prefRadioMode (int mode) { // 1 - Single mode 2 - Dual Mode. Singl
 	}
 	res = serial_res(500,F("OK"));
 	reboot();
+	delay(1000);
 	return(res.status);
 }
 
@@ -414,28 +416,32 @@ String Network::getNetworkOperator() { // Displays the currently attached Servic
 	}
 }
 
-bool Network::sendSMS(String destNumber, String message) { // Sends SMS to the given Destination Number.
+bool Network::sendSMS(String destNumber, String message) 
+{// Sends SMS to the given Destination Number.
 	Serial2.println("AT+CMGF=1");
-	CS_MODEM_RES res = serial_res(500,F("OK"));
+	CS_MODEM_RES res = serial_res(500, F("OK"));
 	Serial2.print(F("AT+CMGS="));
 	Serial2.println(quotes + destNumber + quotes);
+	delay(100);
 	Serial2.println(message + "\x1a");
-	res = serial_res(20000,F("OK"));
+	delay(100);
+	res = serial_res(5000, F("OK"));
+	Serial.println(res.data);
+	Serial.println(res.status);
 	return res.status;
 }
 
-
-String Network::readSMS(String index, String storageType) { // Prints the SMS received and stored in a specific strorage (SIM or Modem Flash) with the index number.
+String Network::readSMS(String index, String storageType) 
+{// Prints the SMS received and stored in a specific strorage (SIM or Modem Flash) with the index number.
 	Serial2.print(F("AT+CPMS="));
 	Serial2.println(quotes + storageType + quotes);
-	CS_MODEM_RES res = serial_res(10000,F("OK"));
+	CS_MODEM_RES res = serial_res(10000, F("OK"));
 	Serial2.print(F("AT+CMGR="));
 	Serial2.println(index);
-	res = serial_res(10000,F("OK"));
+	res = serial_res(10000, F("OK"));
 	String out = res.temp;
-    out.replace(F("OK"),"");
-	out = out.substring(0,out.length());
-	Serial.println(out);
+	out.replace(F("OK"), "");
+	out = out.substring(0, out.length());
 	return out;
 }
 
@@ -496,10 +502,164 @@ bool Network::sendCoAPData(String data, String dataLength) { // Send data to CoA
 // 	enable = out;
 // }
 
-void Network::closeCoAP() {
+
+void Network::closeCoAP()
+{//Close CoAP server connection.
 	Serial2.print(F("AT+NCDPCLOSE"));
-	CS_MODEM_RES res = serial_res(500,F("OK"));
+	CS_MODEM_RES res = serial_res(500, F("OK"));
 }
+
+bool Network::initSingleTCP(String ipmode, String addr, int port) 
+{//Initialize single TCP connection
+	CS_MODEM_RES resp;
+	Serial2.println("AT+CIPMUX=0");
+	CS_MODEM_RES res = serial_res(500, F("OK"));
+	if (res.status == 1)
+	{
+		Serial2.print("AT+CIPSTART=");
+		Serial2.println(quotes + ipmode + quotes + comma + quotes + addr + quotes + comma + port);
+		delay(5000);
+		resp = serial_res(10000, F("OK"));
+	}
+	return res.status;
+}
+
+bool Network::initMultiTCP(int conum, String ipmode, String addr, int port) 
+{//Initialize Multi TCP connection
+	CS_MODEM_RES resp;
+	Serial2.println("AT+CIPMUX=1");
+	delay(500);
+	CS_MODEM_RES res = serial_res(500, F("OK"));
+	Serial.println(res.data);
+	if (res.status == 1)
+	{
+		Serial2.print(F("AT+CIPSTART="));
+		Serial2.println(conum + comma + quotes + ipmode + quotes + comma + quotes + addr + quotes + comma + port);
+		delay(5000);
+		resp = serial_res(10000, F("OK"));
+		Serial.println(res.data);
+	}
+	return resp.status;
+}
+
+bool Network::sendTCPData(int mode, int num, String message) 
+{// Input message to be sent
+	CS_MODEM_RES res;
+	if (mode == 0)
+	{
+		Serial2.println("AT+CIPSEND");
+		delay(100);
+		String out = message + "\x1a";
+		Serial2.println(out);
+		delay(5000);
+		res = serial_res(1000, F("SEND OK"));
+	}
+	else if (mode == 1)
+	{
+		Serial2.print("AT+CIPSEND=");
+		Serial2.println(num);
+		delay(100);
+		String out = message + "\x1a";
+		Serial2.println(out);
+		delay(5000);
+		res = serial_res(1000, F("SEND OK"));
+	}
+	return res.status;
+}
+
+String Network::recieveTCPData(int mode, int num) 
+{//Recieves TCP data
+	CS_MODEM_RES res;
+	String out;
+	if (mode == 0)
+	{
+		Serial2.println("AT+CIPRXGET=1");
+		delay(1000);
+		res = serial_res(1000, F("OK"));
+		Serial2.println("AT+CIPRXGET=4");
+		delay(1000);
+		res = serial_res(1000, F("+CIPRXGET:"));
+		out = res.temp;
+		int addr_start = out.indexOf(F(":")) + 1;
+		int addr_end = out.indexOf(F("O"));
+		out = out.substring(addr_start, addr_end);
+		Serial.println(out);
+	}
+	else if (mode == 1)
+	{
+		Serial2.print("AT+CIPRXGET=1");
+		delay(100);
+		res = serial_res(1000, F("OK"));
+		String mout = num + comma + "4";
+		Serial2.println(mout);
+		delay(1000);
+		res = serial_res(1000, F("+CIPRXGET:"));
+		out = res.temp;
+		int addr_start = out.indexOf(F(":")) + 1;
+		int addr_end = out.indexOf(F("O"));
+		out = out.substring(addr_start, addr_end);
+	}
+	return out;
+}
+
+void Network::closeTCP(int mode, int connum)
+{//Close TCP Connection
+	CS_MODEM_RES res;
+	if (mode == 0)
+	{
+		Serial2.println("AT+CIPCLOSE");
+		res = serial_res(500, F("OK"));
+	}
+	else if (mode == 1)
+	{
+		Serial2.print("AT+CIPCLOSE=");
+		Serial2.println(connum);
+		res = serial_res(500, F("OK"));
+	}
+}
+
+void Network::shutdownTCP()
+{//Shutdown TCP connection
+	Serial2.println("AT+CIPSHUT");
+	CS_MODEM_RES res = serial_res(500, F("OK"));
+}
+
+bool Network::creatUDP(int port, int recievechar)
+{//Creates UDP socket connection
+	Serial2.print("AT+TSOCR=");
+	Serial2.println(quotes + "DGRAM" + quotes + comma + 17 + comma + port + comma + recievechar);
+	CS_MODEM_RES res = serial_res(500, F("OK"));
+	return res.status;
+}
+
+bool Network::sendUDP(int socketid, String raddr, int rport, int length, String data)
+{//Sends UDP data
+	Serial2.print("AT+TSOST=");
+	Serial2.println(socketid + comma + quotes +  raddr + quotes + comma + rport + comma + length + comma + quotes + data + quotes);
+	CS_MODEM_RES res = serial_res(500, F("OK"));
+	return res.status;
+}
+
+String Network::recieveUDP(int socketid, int reqlength)
+{//Recieves UDP data
+	String tmp;
+	CS_MODEM_RES res = serial_res(500, F("OK"));
+	Serial.print("AT+TSORF=");
+	Serial.println(socketid + comma + reqlength);
+	res = serial_res(500, F("OK")); 
+	String out = res.temp;
+	int outindex = out.indexOf("O");
+	Serial.println(outindex);
+	tmp  = out.substring(outindex-16,outindex);
+	return tmp;
+}
+
+void Network::endUDP()
+{//end UDP socket connection
+	Serial2.println("AT+TSOCL=1");
+	CS_MODEM_RES res = serial_res(500, F("OK"));
+}
+
 
 CS_MODEM_RES Network::serial_res(long timeout,String chk_string) {
 	unsigned long pv_ok = millis();
